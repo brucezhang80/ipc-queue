@@ -1,0 +1,24 @@
+Memory-Mapped Files and Shared Memory
+You can also use memory-mapped files as a means of sharing memory between
+processes on the same computer. One process creates a shared memory block by
+calling MemoryMappedFile.CreateNew, while other processes subscribe to that same
+memory block by calling MemoryMappedFile.OpenExisting with the same name. Al-
+though it’s still referred to as a memory-mapped “file,” it lives entirely in memory
+and has no disk presence.
+The following creates and has no disk presence.
+
+
+The following creates a 500-byte shared memory-mapped file, and writes the integer
+12345 at position 0:
+using (MemoryMappedFile mmFile = MemoryMappedFile.CreateNew ("Demo", 500))
+using (MemoryMappedViewAccessor accessor = mmFile.CreateViewAccessor())
+{
+  accessor.Write (0, 12345);
+  Console.ReadLine();   // Keep shared memory alive until user hits Enter.
+}
+
+
+while the following opens that same memory-mapped file and reads that integer:
+// This can run in a separate EXE:
+using (MemoryMappedFile mmFile = MemoryMappedFile.OpenExisting ("Demo"))
+using (MemoryMappedViewAccessor accessor = mmFile.CreateViewAcc

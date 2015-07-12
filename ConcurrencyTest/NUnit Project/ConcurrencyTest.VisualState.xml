@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1000]H:\Software\CODE\eTrader\src\main\csharp_VS_2010\com\alphasystematics\ConcurrencyTest\NUnit Project\ConcurrencyTest.nunit</TopNode>
+  <SelectedNode>[0-1005]com.alphaSystematics.concurrency.MMChannel_NUnit_Tests._04_testTakeIsUnblockedWhenElementAdded</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1000]H:\Software\CODE\eTrader\src\main\csharp_VS_2010\com\alphasystematics\ConcurrencyTest\NUnit Project\ConcurrencyTest.nunit" Expanded="true" />
+    <Node UniqueName="[0-1014]H:\Software\CODE\eTrader\src\main\csharp_VS_2010\com\alphasystematics\ConcurrencyTest\NUnit Project\..\TestRunner\bin\Release\TestRunner.dll" Expanded="true" />
+    <Node UniqueName="[0-1015]com" Expanded="true" />
+    <Node UniqueName="[0-1016]com.alphaSystematics" Expanded="true" />
+    <Node UniqueName="[0-1017]com.alphaSystematics.concurrency" Expanded="true" />
+    <Node UniqueName="[0-1001]com.alphaSystematics.concurrency.MMChannel_NUnit_Tests" Expanded="true" />
+  </Nodes>
+</VisualState>
