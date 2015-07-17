@@ -1,0 +1,4 @@
+http://people.csail.mit.edu/sukhaj/libxac/index.html
+
+The major changes to the system from what is documented above include: • Log format for durable transactions changed. Temporary pages (created when a transaction writes to a page for the first time) are no longer allocated/mapped directly from the log file, but simply allocated from a free list of pages. The log for recovery is now a separate file. This change should fix the bug in the log file format for multiple processes, and also lets us implement group commit.
+• Version 1.0 of the code has included the missing files necessary to run the cache-oblivious B-tree code. The cache-oblivious B-tree code, without Libxac, is also isolated within a separate directory called "pma_only".
