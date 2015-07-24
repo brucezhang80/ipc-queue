@@ -253,6 +253,7 @@ namespace com.alphaSystematics.concurrency
                 // Save the state of whether this thread originally owned the mutex or not for use in the Close() method
                 _didThisThreadCreateTheMutex = IsChannelMutexOwned;
 
+		// It's possible that another process has already created these artifacts in which case we just acquire handles to them 
                 _consumerSemaphore = new Semaphore(0, _capacity, _consumerSemaphoreName, out IsConsumerSemaphoreNew);
                 _producerSemaphore = new Semaphore(_capacity, _capacity, _producerSemaphoreName, out IsProducerSemaphoreNew);
                 _memoryMappedDataFile = MemoryMappedFile.CreateOrOpen(_memoryMappedDataFileName, _fileSize);
@@ -265,7 +266,7 @@ namespace com.alphaSystematics.concurrency
                     Console.WriteLine(msg);
                 }
 
-                // Create an array of views to access the data file
+                // Create an array of views to access the data file. Views and view accessors are local to this thread - not system-wide.
                 _viewAccessor = (MemoryMappedViewAccessor[])new MemoryMappedViewAccessor[_capacity];
 
                 // Populate the array of views from the memory mapped file. 
@@ -280,11 +281,11 @@ namespace com.alphaSystematics.concurrency
 
                 ControlData data = default(ControlData);
 
-                // Read the control data from the file. If this thread is the first to try to create the file then it will
-                // not have been initialized
+                // Read the control data from the file. If this thread is the first to try to create the file then it will not have been initialized
                 _controlDataAccessor.Read(ZERO, out data);
 
                 // Just need one thread to log results for the lifetime of the channel. 
+		// If the control section has been initialized by some process then the system-wide artifacts are ready for use and we don't want to do it again
                 if (!data.isInitialized)
                 {
                     data.queueAddPosition = 0;
@@ -419,22 +420,6 @@ namespace com.alphaSystematics.concurrency
             catch (Exception e) { Console.WriteLine(e); throw; }
             finally { MLockChannel.ReleaseMutex(); }
         }
-
-        //public unsafe void ShutdownDataToString(ShutdownData data, String label = "")
-        //{
-        //    MLockShutdown.WaitOne();
-        //    try
-        //    {
-        //        if (label != null && label.Trim().Length > 0) { Console.WriteLine(label); }
-        //        Console.WriteLine("ShutdownFlag = {0}", data.shutdownFlag);
-        //        Console.WriteLine("Reservations = {0}", data.reservations);
-
-        //        Console.WriteLine("\n");
-        //    }
-        //    catch (Exception e) { Console.WriteLine(e); throw; }
-        //    finally { MLockShutdown.ReleaseMutex(); }
-        //}
-
  
         #endregion Control Data properties
 
@@ -840,13 +825,7 @@ namespace com.alphaSystematics.concurrency
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Set up uncaught exception handler in case some dodgy code throws a RunTimeException 
-            // This won't work if the exception is passed to some even more dodgy 3rd psrty code that swallows
-            // the exception. Does work in the case of dodgy 3rd party rogue code like ActiveMQ which kindly throws
-            // some kind of runtime exception if you don't have a 'geronimo' jar in your classpath when you try to
-            // instantiate a connectionFactory or ActiveMQConnectionFactory
-            // Java version looks like this - ASExceptionHandler UEH = new ASExceptionHandler();
-            //                                Thread.setDefaultUncaughtExceptionHandler(UEH);
-            // Java also has per-thread scheduler handlers set up using the same class
+            // This won't work if the exception is passed to some even more dodgy 3rd party code that swallows the exception. 
             Console.Write(e.ExceptionObject.ToString());
 
         }
@@ -998,7 +977,7 @@ namespace com.alphaSystematics.concurrency
 
 
 #region Note 1. Another possible initialization method
-// Doesn't seem feasible though because either the variables should be readonly or guarder with a lock
+// Doesn't seem feasible though because either the variables should be readonly or guarded with a lock
 // Not possible to set the values of readonly variables except in a static constructor or variable initializer and if we need to
 // guard with a lock then no point trying to use lazy static initialization
 
@@ -1166,12 +1145,11 @@ the unmanaged memory is released) call GC.RemoveMemoryPressure.
 // public static OpenExisting(string name)
 // public static OpenExisting(string name, SemaphoreRights rights)
 //
-// If you try to create a named Semaphore and it already exusts its not so serious as with mutexes because the calling thread
-// doesn't "own" it but stiil indicates a problem because the specified counts will have been ignored
+// If you try to create a named Semaphore and it already exists its not so serious as with mutexes because the calling thread
+// doesn't "own" it but still indicates a problem because the specified counts will have been ignored
 //
 // Take a Semaphores by waiting on it i.e. Waitone, WaitAll, WaitAny
-// In .NET can only acquire one permit at a time unlike Java
-// because there is no thread affinity there is no concept of and "abandened semaphore" or of recursion
+// In .NET can only acquire one permit at a time unlike Java because there is no thread affinity there is no concept of and "abandoned semaphore" or of recursion
 // 
 // Release allows more than one permit to be returned
 // public int Release();
