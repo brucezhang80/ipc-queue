@@ -42,7 +42,7 @@ namespace TestMMFile_Shutdown
         const long AVERAGE_THROUGHPUT_THRESHOLD_TICKS = 1000;
         int initNoOfTrials = 0; 
         const int defaultNoOfTrials = 1000000;
-        const bool DEBUG = true; static bool TEST = false;
+        static bool TEST = false;
 
         static int Menu()
         {
@@ -137,16 +137,12 @@ namespace TestMMFile_Shutdown
         {
             try
             {
-                // Add the event handler for handling UI thread exceptions to the event. 
-                // Application.ThreadException += new
-                //    ThreadExceptionEventHandler(ErrorHandlerForm.Form1_UIThreadException);
-                // Set the unhandled exception mode to force all Windows Forms  
-                // errors to go through our handler. 
+                // If using forms etc. add the event handler for handling UI thread exceptions to the event. 
+                // Application.ThreadException += new ThreadExceptionEventHandler(ErrorHandlerForm.Form1_UIThreadException);
+                // Set the unhandled exception mode to force all Windows Forms errors to go through our handler. 
                 // Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException); 
-
                 // Add the event handler for handling non-UI thread exceptions to the event.  
-                AppDomain.CurrentDomain.UnhandledException +=
-                    new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException); 
+                AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException); 
 
                 int choice = 0;
 
@@ -193,13 +189,7 @@ namespace TestMMFile_Shutdown
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Set up uncaught exception handler in case some dodgy code throws a RunTimeException 
-            // This won't work if the exception is passed to some even more dodgy 3rd psrty code that swallows
-            // the exception. Does work in the case of dodgy 3rd party rogue code like ActiveMQ which kindly throws
-            // some kind of runtime exception if you don't have a 'geronimo' jar in your classpath when you try to
-            // instantiate a connectionFactory or ActiveMQConnectionFactory
-            // Java version looks like this - ASExceptionHandler UEH = new ASExceptionHandler();
-            //                                Thread.setDefaultUncaughtExceptionHandler(UEH);
-            // Java also has per-thread scheduler handlers set up using the same class
+            // This won't work if the exception is passed to some even more dodgy 3rd party code that swallows the exception. 
             Console.Write(e.ExceptionObject);
         }
 
@@ -233,7 +223,7 @@ namespace TestMMFile_Shutdown
                 string QueueName = "_08_testPutTake_fixed";
 
                 // Create the MMChannel which will instantiate the memory mapped files, mutexes, semaphores etc ... 
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 // perform the test from the main thread
                 try

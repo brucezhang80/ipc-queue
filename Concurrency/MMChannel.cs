@@ -24,7 +24,6 @@ namespace com.alphaSystematics.concurrency
 {
     public unsafe struct ControlData
     {
-        public bool debug;
         public bool test;
         public int ds_type;
         public int queueAddPosition;
@@ -91,7 +90,7 @@ namespace com.alphaSystematics.concurrency
         private readonly static object lockConstructor = new object();
 
         public static MMChannel GetInstance(string ipcName, int fileSize, int viewSize, int capacity, 
-            bool debug = false, bool test = false, DataStructureType dsType = DataStructureType.Queue) 
+            bool test = false, DataStructureType dsType = DataStructureType.Queue) 
         {
             // The mutex is used to ensure atomic
             // creation and initialization of the IPC artefacts. If another process has already acquired the mutex then the method 
@@ -104,18 +103,18 @@ namespace com.alphaSystematics.concurrency
             // Why I didn't use static lazy initialization. See Note 1. Another possible initialization method
             lock (lockConstructor)
             {
-                if (channel == null) channel = new MMChannel(ipcName, fileSize, viewSize, capacity, debug, test, dsType);
+                if (channel == null) channel = new MMChannel(ipcName, fileSize, viewSize, capacity, test, dsType);
             }
 
             return channel; 
         }
 
         private MMChannel(string ipcName, int fileSize, int viewSize, int capacity, 
-            bool debug = false, bool test = false, DataStructureType dsType = DataStructureType.Queue) 
+            bool test = false, DataStructureType dsType = DataStructureType.Queue) 
         {
             // We received _ipcFileName, fileSize, viewSize, collection type, timeout and capacity in the constructor
             _fileSize = fileSize; _viewSize = viewSize; _capacity = capacity; _ipcName = ipcName;
-            _dsType = dsType; _debug = debug; _test = test; 
+            _dsType = dsType; _test = test; 
 
             if (ipcName.Length == 0 || _fileSize <= 0 || _viewSize <= 0 || _capacity <= 0)
             {
@@ -150,7 +149,7 @@ namespace com.alphaSystematics.concurrency
         const int CONTROL_DATA_FILE_SIZE = 1000; const int ZERO = 0;
         const int DEFAULT_TIMEOUT = System.Threading.Timeout.Infinite;
 
-        private int _fileSize; private int _viewSize; private int _capacity; private bool _debug; private bool _test;
+        private int _fileSize; private int _viewSize; private int _capacity; private bool _test;
 
         // All the Inter Process artefacts need names so they can be looked up
         // Inter-process throttle on the number of items that can be enqueued. 
@@ -217,12 +216,12 @@ namespace com.alphaSystematics.concurrency
             // should already have been created by the first thread that created the mutex as new
 
             // Don't initially acquire the mutex unless you're sure that you can lock out other threads 
-            // Cos if you do it increments the acquition count and subsequently you can acquire it and the release in a 
+            // If you do it increments the acquition count and subsequently you can acquire it and the release in a 
             // finally block all day but it'll never get reset to zero so only the main thread can ever own it
             // This is why the tests that directly executed Put and Take methods from the main thread worked fine
             // but any test executed in a background thread blocked indefinately
 
-            // Bigger problem is even when I did initially acquire the mutex using the safe idiom in 
+            // Initially acquired the mutex using the safe idiom in 
             // Concurrent Programming on Windows, Joe Duffy, Chap 5 Windows Kernel Synchronization page 214
             // as follows:
             //
@@ -238,11 +237,7 @@ namespace com.alphaSystematics.concurrency
             // semaphores which returns a handle to an existing one if there is one. I also use the CreateOrOpen method to 
             // open or get a handle to the memory mapped files
             //
-            // Could understand this not working if this MMChannel were shared between threads because the IsMutexOwned field is
-            // not guarded and so could be modified by another thread before the if statement is executed but this class is 
-            // supposed to be effectively Thread Local and I checked to see that one object is instantiated for each thread
-            // 
-            // Needs more investigation!!!
+            // Needs more investigation
             #endregion Atomic IPC artefact creation
 
             _mutexLockChannel = new Mutex(false, _mutexLockChannelName, out IsChannelMutexOwned);
@@ -308,11 +303,10 @@ namespace com.alphaSystematics.concurrency
                     data.testPutSum = 0;
                     data.testTakeSum = 0;
                     // Save the constructor parameters 
-                    data.debug = _debug;
                     data.test = _test;
 
                     DateTime dtNow = DateTime.Now;
-                    if (!data.debug) { data.startTimeTicks = dtNow.Ticks; }
+                    data.startTimeTicks = dtNow.Ticks;
 
                     string sTime = Convert.ToString(dtNow);
                     char[] cStart = sTime.ToCharArray();
@@ -381,7 +375,6 @@ namespace com.alphaSystematics.concurrency
             try
             {
                 if (label != null && label.Trim().Length > 0) { Console.WriteLine(label); }
-                Console.WriteLine("Debug = {0}", data.debug);
                 Console.WriteLine("Test = {0}", data.test);
                 Console.WriteLine("Data structure type = {0}", (DataStructureType)_dsType);
                 Console.WriteLine("QueueAddPosition = {0}", data.queueAddPosition);
@@ -478,16 +471,6 @@ namespace com.alphaSystematics.concurrency
 
                 controlData.totalItemsEnqueued++;
 
-                #region DEBUG
-                // Attempt to catch ArrayIndexOutOfBoundsExceptions or data corruption due to cursors getting out of wack
-                if (controlData.debug)
-                {
-                    int diff = Math.Abs(controlData.queueAddPosition - originalAddPosition);
-                    if (!(diff == 1 || controlData.queueAddPosition == 0)) throw new Exception(string.Format
-                        ("New Add Position = {0} Originally = {1}", controlData.queueAddPosition, originalAddPosition));
-                }
-                #endregion DEBUG
-
                 // Currently in test mode ONLY integers can be processed
                 if (controlData.test) { controlData.testPutSum += Convert.ToInt64(data); }
             }
@@ -535,15 +518,6 @@ namespace com.alphaSystematics.concurrency
                 }
                 controlData.totalItemsEnqueued++;
 
-                #region DEBUG
-                // Attempt to catch ArrayIndexOutOfBoundsExceptions or data corruption due to cursors getting out of wack
-                if (controlData.debug)
-                {
-                    int diff = Math.Abs(controlData.queueAddPosition - originalAddPosition);
-                    if (!(diff == 1 || controlData.queueAddPosition == 0)) throw new Exception(string.Format
-                        ("New Add Position = {0} Originally = {1}", controlData.queueAddPosition, originalAddPosition));
-                }
-                #endregion DEBUG
             }
             catch (Exception e) { Console.WriteLine(e); throw; }
             finally { _controlDataAccessor.Write(ZERO, ref controlData); MLockChannel.ReleaseMutex(); _consumerSemaphore.Release(); }
@@ -589,16 +563,6 @@ namespace com.alphaSystematics.concurrency
 
                 controlData.totalItemsDequeued++;
                 controlData.reservations--;
-
-                #region DEBUG
-                // Attempt to catch ArrayIndexOutOfBoundsExceptions or data corruption due to cursors getting out of wack
-                if (controlData.debug)
-                {
-                    int diff = Math.Abs(controlData.queueTakePosition - originalTakePosition);
-                    if (!(diff == 1 || controlData.queueTakePosition == 0)) throw new Exception(string.Format
-                        ("New Take Position = {0} Originally = {1}", controlData.queueTakePosition, originalTakePosition));
-                }
-                #endregion DEBUG
 
                 // Currently in test mode ONLY integers can be processed
                 if (controlData.test) { controlData.testTakeSum += Convert.ToInt64(data); }
@@ -696,16 +660,6 @@ namespace com.alphaSystematics.concurrency
 
                 controlData.totalItemsDequeued++;
                 controlData.reservations--;
-
-                #region DEBUG
-                // Attempt to catch ArrayIndexOutOfBoundsExceptions or data corruption due to cursors getting out of wack
-                if (controlData.debug)
-                {
-                    int diff = Math.Abs(controlData.queueTakePosition - originalTakePosition);
-                    if (!(diff == 1 || controlData.queueTakePosition == 0)) throw new Exception(string.Format
-                        ("New Take Position = {0} Originally = {1}", controlData.queueTakePosition, originalTakePosition));
-                }
-                #endregion DEBUG
             }
             catch (Exception e) { Console.WriteLine(e); throw; }
             finally { _controlDataAccessor.Write(ZERO, ref controlData); MLockChannel.ReleaseMutex(); _producerSemaphore.Release(); }
@@ -740,36 +694,6 @@ namespace com.alphaSystematics.concurrency
         #endregion Take an Array
 
         #endregion Add/take elements
-
-
-        public bool Debug
-        {
-            // External - must be guarded by the mutex
-            get
-            {
-                ControlData data = default(ControlData);
-                MLockChannel.WaitOne();
-                try
-                {
-                    _controlDataAccessor.Read(ZERO, out data);
-                    return data.debug;
-                }
-                catch (Exception e) { Console.WriteLine(e); throw; }
-                finally { MLockChannel.ReleaseMutex(); }
-            }
-            set
-            {
-                ControlData data = default(ControlData);
-
-                MLockChannel.WaitOne();
-                try
-                {
-                    data.debug = value; _controlDataAccessor.Write(ZERO, ref data);
-                }
-                catch (Exception e) { Console.WriteLine(e); throw; }
-                finally { MLockChannel.ReleaseMutex(); }
-            }
-        }
 
         public bool Test
         {
@@ -930,7 +854,7 @@ namespace com.alphaSystematics.concurrency
             // I forgot to dispose of the memory mapped files - oops!
             // This bug survived literally hundreds of tests runs because I was running them in groups of three, each 
             // creating a memory mapped file with a different name.
-            // It wasn't until I tried running the same test re[eatedly that it failed - throwing an Exception that 
+            // It wasn't until I tried running the same test repeatedly that it failed - throwing an Exception that 
             // the file already exists (I was using the CreateNew() method to create them)
             // The mm file has a built-in finalizer which gets rid of it when the GC collector runs so I gues that by the time
             // you've recycled round to the first test the GC has disposed of the file it created in its previous incarnation
@@ -986,7 +910,6 @@ namespace com.alphaSystematics.concurrency
 // private static readonly int viewSize;
 // private static readonly int capacity;
 // private static readonly bool debug;
-// private static readonly bool test;
 // private static readonly DataStructureType dsType;
 
 // public static void init(string aIpcName, int aFileSize, int aViewSize, int aCapacity,
@@ -996,7 +919,6 @@ namespace com.alphaSystematics.concurrency
 //     fileSize = aFileSize;
 //     viewSize = aViewSize;
 //     capacity = aCapacity;
-//     debug = aDebug;
 //     test = aTest;
 //     dsType = aDsType;
 // }
@@ -1005,10 +927,10 @@ namespace com.alphaSystematics.concurrency
 
 // Problem. How do we get the parameters to pass to the static initializer? 
 // Store them somewhere externally before calling the getResource() method?
-//         private static MMChannel channel; // new MMChannel(ipcName, fileSize, viewSize, capacity, debug, test, dsType);
+//         private static MMChannel channel; // new MMChannel(ipcName, fileSize, viewSize, capacity, test, dsType);
 
 //         public static MMChannel getResource(string ipcName, int fileSize, int viewSize, int capacity,
-//                                         bool debug = false, bool test = false, DataStructureType dsType = DataStructureType.Queue) {
+//                                         bool test = false, DataStructureType dsType = DataStructureType.Queue) {
 
 //         return LazyResourceHolder.channel; 
 //         }
@@ -1016,7 +938,7 @@ namespace com.alphaSystematics.concurrency
 
 // Using static lazy initialization. The static LazyResourceHolder inner class only exists to create the resource the first time it 
 // is referenced by calling getResource()
-// return LazyResourceHolder.getResource(ipcName, fileSize, viewSize, capacity, debug, test, dsType);
+// return LazyResourceHolder.getResource(ipcName, fileSize, viewSize, capacity, test, dsType);
 
 #endregion another possible initialization method
 

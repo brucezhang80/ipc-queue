@@ -34,14 +34,12 @@ namespace TestMMFile_Source
         // thats broken unless you have confidence that the tests themselves have been tested thoroughly
         // in this case we are lucky in that we are trying to mimic the functionality of an existing library class but extend
         // it to use inter process.
-        // We can drop in the library class here in order to test the test because we have confidence that the library class
-        // works so if the tests fail when using library class then the tests are broken - For NUnit tests in a single process
 
         static DataStructureType initTestDataStructureType = default(DataStructureType);
         const long AVERAGE_THROUGHPUT_THRESHOLD_TICKS = 1000;
         int initNoOfTrials = 0; int initTestRunNumber = 0; int initTestSuiteNumber = 0; int maxLongRandomSeed = 0; int maxIntRandomSeed = 0;
         const int defaultNoOfTrials = 1000000;
-        const bool DEBUG = true; static bool TEST = false;
+        static bool TEST = false;
 
         static int Menu()
         {
@@ -55,7 +53,7 @@ namespace TestMMFile_Source
                 Console.WriteLine("1: Test menu for the Producers\n");
                 // Console.WriteLine("1: Test that the queue is empty when constructed\n");
                 // Console.WriteLine("2: Test that the queue is full after Puts and empty after Takes\n");
-                // sole.WriteLine("3: Test that the Take method blocks when the queue is empty\n");
+                // Console.WriteLine("3: Test that the Take method blocks when the queue is empty\n");
                 Console.WriteLine("4: Test that the Take method is unblocked when an item is added\n");
                 Console.WriteLine("5: Test Put and Take methods with Int data and equal numbers of producers and consumers\n");
                 Console.WriteLine("6: Test Put and Take methods with Long data and equal numbers of producers and consumers\n");
@@ -144,7 +142,7 @@ namespace TestMMFile_Source
         {
             try
             {
-                // Add the event handler for handling UI thread exceptions to the event. 
+                // If using forms etc add the event handler for handling UI thread exceptions to the event. 
                 // Application.ThreadException += new
                 //    ThreadExceptionEventHandler(ErrorHandlerForm.Form1_UIThreadException);
                 // Set the unhandled exception mode to force all Windows Forms  
@@ -323,13 +321,7 @@ namespace TestMMFile_Source
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Set up uncaught exception handler in case some dodgy code throws a RunTimeException 
-            // This won't work if the exception is passed to some even more dodgy 3rd psrty code that swallows
-            // the exception. Does work in the case of dodgy 3rd party rogue code like ActiveMQ which kindly throws
-            // some kind of runtime exception if you don't have a 'geronimo' jar in your classpath when you try to
-            // instantiate a connectionFactory or ActiveMQConnectionFactory
-            // Java version looks like this - ASExceptionHandler UEH = new ASExceptionHandler();
-            //                                Thread.setDefaultUncaughtExceptionHandler(UEH);
-            // Java also has per-thread scheduler handlers set up using the same class
+            // This won't work if the exception is passed to some even more dodgy 3rd party code that swallows the exception. 
             Console.Write(e.ExceptionObject.ToString());
         }
 
@@ -347,12 +339,9 @@ namespace TestMMFile_Source
                 int fileSize = 1000000;
                 int capacity = 500;
 
-                // mmq = new BlockingCollection<string>(new ConcurrentQueue<string>(), capacity);
-                // mmq = new MMQueueArrayType(QueueName, new MMFileValueType(QueueName, fileSize, viewSize, capacity));
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 ControlData controlData = mmMain.MMFControlData;
-
 
                 Console.WriteLine("Result of _01_testEmptyWhenConstructed() = (Count {1} == initialCount {2}) = {0}",
                     controlData.totalItemsEnqueued == initialCount, controlData.totalItemsEnqueued, initialCount);
@@ -383,9 +372,7 @@ namespace TestMMFile_Source
                 int fileSize = 1000000;
                 int capacity = 500;
 
-                // mmq = new BlockingCollection<string>(new ConcurrentQueue<string>(), capacity);
-                // mmq = new MMQueueArrayType(QueueName, new MMFileValueType(QueueName, fileSize, viewSize, capacity));
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 // Fill the queue
                 // for (int i = 0; i < capacity; i++) { mmq.Add(i.ToString()); }
@@ -488,7 +475,7 @@ namespace TestMMFile_Source
             // to a parameterized threadstart
 
             string QueueName = "_04_testTakeIsUnblockedWhenElementAdded";
-            mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+            mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
             // Populate the struct of data to be enqueued and dequeued 
             data.Value = 1;
@@ -617,7 +604,7 @@ namespace TestMMFile_Source
                 Random rand = new Random();
 
                 // Create the MMChannel which will instantiate the memory mapped files, mutexes, semaphores etc ... 
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 #region Barrier and Barrier Action declaration
                 // The barrier will wait for the test runner thread plus a producer and consumer each for the number of pairs
@@ -672,8 +659,7 @@ namespace TestMMFile_Source
                                 int elapsedTicks = (int)(currentDate.Ticks - centuryBegin.Ticks);
 
                                 #region  WARNING - THIS TEST IS FOR INTEGERS ONLY!
-                                // IT IS THE PROGRAMMER'S RESPONSIBILITY TO ENSURE THAT THE COMPUTED
-                                // RESULT DOES NOT EXCEED THE MAX SIZE OF AN INTEGER
+                                // IT IS THE PROGRAMMER'S RESPONSIBILITY TO ENSURE THAT THE COMPUTED RESULT DOES NOT EXCEED THE MAX SIZE OF AN INTEGER
                                 // The result depends on the product of number of trials and the max size of the random number generated
                                 // In this case nTrials and maxIntRandomSeed respectively.
                                 // Choose values that will not exceed the max size or you will get corrupted results
@@ -820,7 +806,7 @@ namespace TestMMFile_Source
                 Random rand = new Random();
 
                 // Create the MMChannel which will instantiate the memory mapped files, mutexes, semaphores etc ... 
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 #region Barrier and Barrier Action declaration
                 // The barrier will wait for the test runner thread plus a producer and consumer each for the number of pairs
@@ -885,9 +871,7 @@ namespace TestMMFile_Source
                                 {
                                     // enqueue the random value
                                     // If the RNG is sound then this proves that the data enqueued was dequeued
-                                    // mmq.Add(Convert.ToString(seed));
                                     long r = rand.Next(maxLongRandomSeed);
-                                    // mmq.Add(Convert.ToString(r));
                                     mmMain.Put((long)r);
                                     result += r;
                                 }
@@ -1005,7 +989,7 @@ namespace TestMMFile_Source
                 Random rand = new Random();
 
                 // Create the MMChannel which will instantiate the memory mapped files, mutexes, semaphores etc ... 
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 #region Barrier and Barrier Action declaration
                 // The barrier will wait for the test runner thread plus a producer and consumer each for the number of pairs
@@ -1072,14 +1056,13 @@ namespace TestMMFile_Source
 
                                     // Test 03 - enqueue the random value
                                     // If the RNG is sound then this proves that the data enqueued was dequeued
-                                    // mmq.Add(Convert.ToString(seed));
                                     int r = rand.Next(maxLongRandomSeed);
                                     // byte[] encodedData = MMChannel.StringToByteArray(Convert.ToString(r));
                                     char[] encodedData = Convert.ToString(r).ToCharArray();
                                     mmMain.Put(encodedData);
                                     result += r;
 
-                                    // re-compute the random number
+                                    // Java version - re-compute the random number
                                     // seed = MMQueue<string>.xorShift(seed);
                                 }
                                 // Atomically store the computed checksum
@@ -1105,15 +1088,15 @@ namespace TestMMFile_Source
                 int THRESHOLD = 1000; long diff;
 
                 #region heap profiling testing notes
-                // I got this off Java Concurrency in Practice, chap 12 Testing Concurrent Programs Page 258
-                // It doesn't work as written though!
+                // I got this from Java Concurrency in Practice, chap 12 Testing Concurrent Programs Page 258
+                // It doesn't work as written though when using NUnit though
                 // Generally, the heap size after testing was fraction of the size before the test
-                // Obviously, processing these huge messages has triggered a GC during the test
+                // Seems, processing these huge messages has triggered a GC during the test
                 // Even then you would expect this to result in a false positive where the two snapshot were similar even if
                 // your code was leaking memory so the most likely explanation seems to be that NUnit itself is creating objects
                 // which have not yet been reclaimed before the test starts
-                // Requesting a GC before the initial snapshot solves the problem but you have to accept that you cannot 
-                // completely control managed memory allocation and at some point the GC will probably ignore your request
+                // Requesting a GC before the initial snapshot solves the problem in NUnit
+ 		// You have to accept that you cannot completely control managed memory allocation and at some point the GC will probably ignore your request
                 // and the test will fail
                 #endregion heap profiling testing notes
 
@@ -1218,7 +1201,7 @@ namespace TestMMFile_Source
                 Random rand = new Random();
 
                 // Create the MMChannel which will instantiate the memory mapped files, mutexes, semaphores etc ... 
-                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, DEBUG, TEST, initTestDataStructureType);
+                mmMain = MMChannel.GetInstance(QueueName, fileSize, viewSize, capacity, TEST, initTestDataStructureType);
 
                 #region Barrier and Barrier Action declaration
                 // The barrier will wait for the test runner thread plus a producer and consumer each for the number of pairs
@@ -1426,19 +1409,3 @@ namespace TestMMFile_Source
     }
  }
 
-
-
-//        An example of this is the int type, which defines two
-//versions of its Parse method:
-//public int Parse (string input);
-//public bool TryParse (string input, out int returnValue);
-//If parsing fails, Parse throws an exception; TryParse returns false.
-//You can implement this pattern by having the XXX method call the TryXXX method
-//as follows:
-//public return-type XXX (input-type input)
-//{
-//return-type returnValue;
-//if (!TryXXX (input, out returnValue))
-//throw new YYYException (...)
-//return returnValue;
-//}
