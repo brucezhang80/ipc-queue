@@ -51,9 +51,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common">
-      <HintPath>..\..\..\..\..\..\..\..\Lib\net\repository\Common\Common.dll</HintPath>
-    </Reference>
     <Reference Include="Concurrency">
       <HintPath>..\..\Concurrency\bin\Debug\Concurrency.dll</HintPath>
     </Reference>
