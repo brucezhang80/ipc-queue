@@ -1,8 +1,8 @@
-C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\obj\x86\Release\TestProducer.csprojResolveAssemblyReference.cache
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\bin\Release\ProducerTestRunner.cs
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\bin\Release\TestProducer.exe
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\bin\Release\TestProducer.pdb
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\bin\Release\Concurrency.dll
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\bin\Release\Concurrency.pdb
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\obj\x86\Release\TestProducer.csprojResolveAssemblyReference.cache
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\obj\x86\Release\TestProducer.exe
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestProducer\obj\x86\Release\TestProducer.pdb

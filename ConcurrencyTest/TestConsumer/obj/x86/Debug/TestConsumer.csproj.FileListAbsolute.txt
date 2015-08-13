@@ -1,0 +1,8 @@
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\bin\Debug\ConsumerTestRunner.cs
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\bin\Debug\TestConsumer.exe
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\bin\Debug\TestConsumer.pdb
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\bin\Debug\Concurrency.dll
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\bin\Debug\Concurrency.pdb
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\obj\x86\Debug\TestConsumer.csprojResolveAssemblyReference.cache
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\obj\x86\Debug\TestConsumer.exe
+C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestConsumer\obj\x86\Debug\TestConsumer.pdb

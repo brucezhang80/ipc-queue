@@ -1,13 +1,24 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Concurrency", "Concurrency.csproj", "{38D2EBB8-7495-4488-A2B1-C70218CF1E5C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsumer", "..\ConcurrencyTest\TestConsumer\TestConsumer.csproj", "{E391C665-99F9-4328-844B-2620A9828490}"
+	ProjectSection(ProjectDependencies) = postProject
+		{38D2EBB8-7495-4488-A2B1-C70218CF1E5C} = {38D2EBB8-7495-4488-A2B1-C70218CF1E5C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProducer", "..\ConcurrencyTest\TestProducer\TestProducer.csproj", "{E22C21DF-7646-4554-A3E4-4A761217D5F5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{38D2EBB8-7495-4488-A2B1-C70218CF1E5C} = {38D2EBB8-7495-4488-A2B1-C70218CF1E5C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestShutdown", "..\ConcurrencyTest\TestShutdown\TestShutdown.csproj", "{C4B4BF61-2EB9-4831-9136-D25ACC698241}"
+	ProjectSection(ProjectDependencies) = postProject
+		{38D2EBB8-7495-4488-A2B1-C70218CF1E5C} = {38D2EBB8-7495-4488-A2B1-C70218CF1E5C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

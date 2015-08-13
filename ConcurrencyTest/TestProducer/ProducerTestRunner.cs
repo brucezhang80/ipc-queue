@@ -322,7 +322,8 @@ namespace TestMMFile_Source
         {
             // Set up uncaught exception handler in case some dodgy code throws a RunTimeException 
             // This won't work if the exception is passed to some even more dodgy 3rd party code that swallows the exception. 
-            Console.Write(e.ExceptionObject.ToString());
+            Console.Write("Unhandled exception (non-UI) caught by UnhandledExceptionEventHandler in Main");
+            Console.Write(e.ExceptionObject);
         }
 
         public void _01_testEmptyWhenConstructed()
@@ -1096,7 +1097,7 @@ namespace TestMMFile_Source
                 // your code was leaking memory so the most likely explanation seems to be that NUnit itself is creating objects
                 // which have not yet been reclaimed before the test starts
                 // Requesting a GC before the initial snapshot solves the problem in NUnit
- 		// You have to accept that you cannot completely control managed memory allocation and at some point the GC will probably ignore your request
+ 		        // You have to accept that you cannot completely control managed memory allocation and at some point the GC will probably ignore your request
                 // and the test will fail
                 #endregion heap profiling testing notes
 
@@ -1284,22 +1285,22 @@ namespace TestMMFile_Source
                             }
                             catch (Exception unexpected)
                             {
+                                _barrier.RemoveParticipant();
+                                Console.Write("Producer thread terminated after catching an exception from MMChannel 'take()'");
                                 Console.Write(unexpected);
-                                throw;
                             }
                         }
                     )).Start();
-
-
-                    // Start a thread to enqueue an element
-                    // Producer.Start();
 
                     #endregion Producer Lamda declaration
 
                 }
 
-                _barrier.SignalAndWait();   // Wait for all the threads to be ready
-                _barrier.SignalAndWait();   // Wait for all the threads to finish
+                // Wait for all the threads to be ready
+                _barrier.SignalAndWait();
+
+                // Wait for all the threads to finish
+                _barrier.SignalAndWait();
 
                 // calculate the number of ticks elapsed during the test run
                 long elapsedTime = Interlocked.Read(ref timerEndTime) - Interlocked.Read(ref timerStartTime);
@@ -1341,7 +1342,7 @@ namespace TestMMFile_Source
             {
                 // Temporarily delay disposing the queue and its IPC artefacts to allow the consumers to finish draining the queue
                 // This will be fixed by waiting in an interrupible loop for the mutex inside the queue and checking if shutdown
-                Thread.Sleep(1000);
+                // Thread.Sleep(1000);
                 mmMain.Report();
                 mmMain.Dispose();
             }

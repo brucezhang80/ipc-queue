@@ -636,7 +636,8 @@ namespace com.alphaSystematics.concurrency
                 int takePosition = controlData.queueTakePosition; 
                 int originalTakePosition = takePosition;
 
-                #region Array size issue
+                #region Array size issue 
+
                 // Read an array of data items from the view and assign it to the output parameter - type T[]
                 // The length of the array was written to the view by the Put method as an Int in 4 bytes starting at position 0
                 // Seems unlikely that we would have an array of data bigger than 2 billion - odd but be careful if you change the 
@@ -751,7 +752,6 @@ namespace com.alphaSystematics.concurrency
             // Set up uncaught exception handler in case some dodgy code throws a RunTimeException 
             // This won't work if the exception is passed to some even more dodgy 3rd party code that swallows the exception. 
             Console.Write(e.ExceptionObject.ToString());
-
         }
 
         #region Dispose of IPC artefacts
@@ -819,6 +819,9 @@ namespace com.alphaSystematics.concurrency
             // Once we have the mutex then the producers cannot enqueue any more items and once we release the mutex in here
             // the checks in the 'Put()' methods will prevent them doing so in the future
             // The consumers(s) will continue to drain the queue until it is empty 
+            // The last consumer to take an item from the queue (after which the shutdown flag will be set and the queue will be empty) will 
+            // initiate the shutdown process - disposing of all the resources.
+            // Poison pill alone in the take methods won't work as these are blocking methods and the message may never be read
             ControlData data = default(ControlData);
 
             MLockChannel.WaitOne();

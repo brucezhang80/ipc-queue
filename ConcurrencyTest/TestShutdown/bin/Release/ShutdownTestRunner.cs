@@ -39,9 +39,6 @@ namespace TestMMFile_Shutdown
         // works so if the tests fail when using library class then the tests are broken - For NUnit tests in a single process
 
         static DataStructureType initTestDataStructureType = default(DataStructureType);
-        const long AVERAGE_THROUGHPUT_THRESHOLD_TICKS = 1000;
-        int initNoOfTrials = 0; 
-        const int defaultNoOfTrials = 1000000;
         static bool TEST = false;
 
         static int Menu()
@@ -112,27 +109,6 @@ namespace TestMMFile_Shutdown
             return result;
         }
 
-        static int numberOfTrials()
-        {
-            Console.WriteLine("Please a number of trials, between 1 and 1,000,000, to test (Default = 1,000,000)");
-            string result = Console.ReadLine();
-            int choice = 0;
-
-            try
-            {
-                choice = int.Parse(result);
-            }
-            catch (ArgumentException) { }
-            catch (FormatException) { }
-
-            if (!(choice > 0 && choice < 1000000))
-            {
-                Console.WriteLine(choice + " is invalid. Defaulting to 1,000,000)");
-                choice = defaultNoOfTrials;
-            }
-            return choice;
-        }
-
         static void Main(String[] args)
         {
             try
@@ -153,9 +129,8 @@ namespace TestMMFile_Shutdown
                     choice = Menu();
 
                     if (choice > 0) {
-                        String channelType = queueOrStack();
-                        int numberOftrials = numberOfTrials();                        
-                        shutdown.Init(channelType, numberOftrials); 
+                        String channelType = queueOrStack();                    
+                        shutdown.Init(channelType); 
                     }
 
                     switch (choice)
@@ -168,8 +143,9 @@ namespace TestMMFile_Shutdown
                         case 3:
                         TEST = true;
                         shutdown._03_shutdown();
-                        Console.WriteLine("Press ENTER to EXIT the shutdown component");
+                        Console.WriteLine("Press ENTER to QUIT the shutdown component");
                         Console.ReadLine();
+                        choice = 1;
                         break;
 
                         default:
@@ -193,7 +169,7 @@ namespace TestMMFile_Shutdown
             Console.Write(e.ExceptionObject);
         }
 
-            public void Init(string channelType, int numberOfTrials)
+            public void Init(string channelType)
             {
                 // Configure all tests to be run on a queue or a stack type channel
 
@@ -203,11 +179,6 @@ namespace TestMMFile_Shutdown
                 } else { 
                     initTestDataStructureType = DataStructureType.Queue; 
                 }
-
-                initNoOfTrials = numberOfTrials;
-                // These values are not used in the Consumers
-                // maxIntRandomSeed = 1000;
-                // maxLongRandomSeed = 1000000;
             }
 
             public void _03_shutdown()
@@ -246,7 +217,7 @@ namespace TestMMFile_Shutdown
                 catch (Exception unexpected)
                 {
                     Console.Write(unexpected);
-                    throw;
+                    // throw;
                 }
                 finally
                 {

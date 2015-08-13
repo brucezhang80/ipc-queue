@@ -24,7 +24,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-// using QuickFix;
 using System.Runtime.InteropServices;
 
 namespace TestMMFile_Destination
@@ -193,7 +192,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Run the Producer FIRST then press ENTER to execute the consumer component of Test _04_testTakeIsUnblockedWhenElementAdded();");
                         Console.ReadLine();
                         consumer._04_testTakeIsUnblockedWhenElementAdded();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test _04_testTakeIsUnblockedWhenElementAdded();");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test _04_testTakeIsUnblockedWhenElementAdded();");
                         Console.ReadLine();
                         break;
 
@@ -202,7 +201,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test _05_testPutTakeInt();");
                         Console.ReadLine();
                         consumer._05_testPutTakeInt();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test _05_testPutTakInt();");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test _05_testPutTakInt();");
                         Console.ReadLine();
                         break;
 
@@ -211,7 +210,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test _05_testPutTakeLong();");
                         Console.ReadLine();
                         consumer._05_testPutTakeLong();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test _05_testPutTakeLong();");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test _05_testPutTakeLong();");
                         Console.ReadLine();
                         break;
 
@@ -220,7 +219,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test_07_testPutTakeString");
                         Console.ReadLine();
                         consumer._07_testPutTakeString();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test _07_testPutTakeString");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test _07_testPutTakeString");
                         Console.ReadLine();
                         break;
 
@@ -229,7 +228,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test _08_testPutTake_fixed");
                         Console.ReadLine();
                         consumer._08_testPutTake_fixed();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test _08_testPutTake_fixed");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test _08_testPutTake_fixed");
                         Console.ReadLine();
                         break;
 
@@ -238,7 +237,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test Group 00 - Integers");
                         Console.ReadLine();
                         consumer.test_group_00();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test Group 00 - Integers");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test Group 00 - Integers");
                         Console.ReadLine();
                         break;
 
@@ -247,7 +246,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test Group 01 - Longs");
                         Console.ReadLine();
                         consumer.test_group_01();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test Group 01 - Longs");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test Group 01 - Longs");
                         Console.ReadLine();
                         break;
 
@@ -256,7 +255,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test Group 02 - Strings");
                         Console.ReadLine();
                         consumer.test_group_02();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test Group 02 - Strings");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test Group 02 - Strings");
                         Console.ReadLine();
                         break;
 
@@ -265,7 +264,7 @@ namespace TestMMFile_Destination
                         Console.WriteLine("Press ENTER to execute the consumer component of Test Group 03 - Structs");
                         Console.ReadLine();
                         consumer.test_group_03();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test Group 03 - Structs");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test Group 03 - Structs");
                         Console.ReadLine();
                         break;
 
@@ -277,7 +276,7 @@ namespace TestMMFile_Destination
                         consumer.test_group_01();
                         consumer.test_group_02();
                         consumer.test_group_03();
-                        Console.WriteLine("Press ENTER to EXIT the consumer component of Test Groups 00, 01, 02 and 03");
+                        Console.WriteLine("Press ENTER to QUIT the consumer component of Test Groups 00, 01, 02 and 03");
                         Console.ReadLine();
                         break;
 
@@ -300,7 +299,8 @@ namespace TestMMFile_Destination
             // Set up uncaught exception handler in case some dodgy code throws a RunTimeException 
             // This won't work if the exception is passed to some even more dodgy 3rd party code that swallows
             // the exception. 
-            Console.Write(e.ExceptionObject.ToString());
+            Console.Write("Unhandled exception (non-UI) caught by UnhandledExceptionEventHandler in Main");
+            Console.Write(e.ExceptionObject);
         }
 
             public void Init(string channelType, int numberOfTrials)
@@ -1129,16 +1129,20 @@ namespace TestMMFile_Destination
                                 }
                                 catch (Exception unexpected)
                                 {
+                                    _barrier.RemoveParticipant();
+                                    Console.Write("Consumer thread terminated after catching an exception from MMChannel 'take()'");
                                     Console.Write(unexpected);
-                                    throw;
                                 }
                             }
                         )).Start();
                         #endregion Consumer Lamda declaration
                     }
 
-                    _barrier.SignalAndWait();   // Wait for all the threads to be ready
-                    _barrier.SignalAndWait();   // Wait for all the threads to finish
+                    // Wait for all the threads to be ready
+                    _barrier.SignalAndWait();  
+
+                    // Wait for all the threads to finish
+                    _barrier.SignalAndWait();   
 
                     // calculate the number of ticks elapsed during the test run
                     long elapsedTime = Interlocked.Read(ref timerEndTime) - Interlocked.Read(ref timerStartTime);
@@ -1180,7 +1184,7 @@ namespace TestMMFile_Destination
                 {
                     // Temporarily delay disposing the queue and its IPC artefacts to allow the consumers to finish draining the queue
                     // This will be fixed by waiting in an interrupible loop for the mutex inside the queue and checking if shutdown
-                    Thread.Sleep(1000);
+                    // Thread.Sleep(1000);
                     mmMain.Report();
                     mmMain.Dispose();
                 }
