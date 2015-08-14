@@ -1286,7 +1286,7 @@ namespace TestMMFile_Source
                             catch (Exception unexpected)
                             {
                                 _barrier.RemoveParticipant();
-                                Console.Write("Producer thread terminated after catching an exception from MMChannel 'take()'");
+                                Console.Write("Producer thread terminated after catching an exception from MMChannel 'put()'");
                                 Console.Write(unexpected);
                             }
                         }

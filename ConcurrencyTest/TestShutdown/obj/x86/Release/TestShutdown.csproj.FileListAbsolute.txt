@@ -3,6 +3,5 @@ C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\bin\Rele
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\bin\Release\TestShutdown.pdb
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\bin\Release\Concurrency.dll
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\bin\Release\Concurrency.pdb
-C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\obj\x86\Release\TestShutdown.csprojResolveAssemblyReference.cache
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\obj\x86\Release\TestShutdown.exe
 C:\Users\tapman\Documents\GitHub\ipc-queue\ConcurrencyTest\TestShutdown\obj\x86\Release\TestShutdown.pdb
