@@ -1,5 +1,0 @@
-C:\Users\tapman\Documents\GitHub\ipc-queue\Concurrency\bin\Debug\MMChannel.cs
-C:\Users\tapman\Documents\GitHub\ipc-queue\Concurrency\bin\Debug\Concurrency.dll
-C:\Users\tapman\Documents\GitHub\ipc-queue\Concurrency\bin\Debug\Concurrency.pdb
-C:\Users\tapman\Documents\GitHub\ipc-queue\Concurrency\obj\Debug\Concurrency.dll
-C:\Users\tapman\Documents\GitHub\ipc-queue\Concurrency\obj\Debug\Concurrency.pdb
